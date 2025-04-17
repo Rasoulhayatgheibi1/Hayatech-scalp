@@ -1,0 +1,39 @@
+//@version=5
+indicator("Scalping Buy Sell Indicator", overlay=true)
+
+// تنظیمات
+shortEmaLength = input.int(9, title="Short EMA Length")
+longEmaLength = input.int(21, title="Long EMA Length")
+rsiLength = input.int(14, title="RSI Length")
+macdShortLength = input.int(12, title="MACD Short Length")
+macdLongLength = input.int(26, title="MACD Long Length")
+macdSignalLength = input.int(9, title="MACD Signal Length")
+rsiOverbought = input.int(70, title="RSI Overbought Level")
+rsiOversold = input.int(30, title="RSI Oversold Level")
+
+// محاسبه میانگین‌های متحرک نمایی
+shortEma = ta.ema(close, shortEmaLength)
+longEma = ta.ema(close, longEmaLength)
+
+// محاسبه RSI
+rsi = ta.rsi(close, rsiLength)
+
+// محاسبه MACD
+[macdLine, signalLine, _] = ta.macd(close, macdShortLength, macdLongLength, macdSignalLength)
+
+// سیگنال‌های خرید و فروش
+buySignal = ta.crossover(shortEma, longEma) and rsi < rsiOversold and macdLine > signalLine
+sellSignal = ta.crossunder(shortEma, longEma) and rsi > rsiOverbought and macdLine < signalLine
+
+// نمایش سیگنال‌های خرید و فروش
+plotshape(buySignal, title="Buy Signal", location=location.belowbar, color=color.green, style=shape.labelup, text="BUY")
+plotshape(sellSignal, title="Sell Signal", location=location.abovebar, color=color.red, style=shape.labeldown, text="SELL")
+
+// نمایش میانگین‌های متحرک
+plot(shortEma, title="Short EMA", color=color.blue, linewidth=2)
+plot(longEma, title="Long EMA", color=color.orange, linewidth=2)
+
+// نمایش RSI
+hline(rsiOverbought, title="RSI Overbought", color=color.red)
+hline(rsiOversold, title="RSI Oversold", color=color.green)
+plot(rsi, title="RSI", color=color.blue)
